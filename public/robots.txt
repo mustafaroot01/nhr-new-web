@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /x9k2m7p4
+Disallow: /admin
+Disallow: /login
+Disallow: /livewire
+Disallow: /storage/
+Disallow: /_debugbar

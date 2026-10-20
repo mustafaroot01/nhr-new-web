@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('post_media', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('media_id')->constrained()->cascadeOnDelete();
+            $table->enum('type', ['gallery', 'attachment'])->default('gallery');
+            $table->integer('sort_order')->default(0);
+            $table->timestamps();
+
+            $table->unique(['post_id', 'media_id', 'type']);
+            $table->index(['post_id', 'type', 'sort_order']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('post_media');
+    }
+};
