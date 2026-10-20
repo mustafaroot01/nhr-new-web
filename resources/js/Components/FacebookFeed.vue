@@ -1,48 +1,15 @@
 <script setup>
-import { nextTick, onMounted, ref } from 'vue';
+import { computed } from 'vue';
 import { useLocale } from '../Composables/useLocale';
 
 const props = defineProps({ url: { type: String, default: '' } });
 const { locale, t } = useLocale();
-const loaded = ref(false);
 
-function parseXfbml() {
-    if (window.FB && window.FB.XFBML) {
-        window.FB.XFBML.parse();
-        loaded.value = true;
-    }
-}
-
-function loadSdk() {
-    if (!props.url) return;
-    const fbLocale = locale.value === 'ar' ? 'ar_AR' : 'en_US';
-    const id = 'facebook-jssdk';
-
-    if (document.getElementById(id)) {
-        parseXfbml();
-        return;
-    }
-
-    if (!document.getElementById('fb-root')) {
-        const root = document.createElement('div');
-        root.id = 'fb-root';
-        document.body.prepend(root);
-    }
-
-    const js = document.createElement('script');
-    js.id = id;
-    js.async = true;
-    js.defer = true;
-    js.crossOrigin = 'anonymous';
-    js.src = `https://connect.facebook.net/${fbLocale}/sdk.js#xfbml=1&version=v19.0`;
-    js.onload = () => nextTick(parseXfbml);
-    document.body.appendChild(js);
-}
-
-onMounted(() => {
-    loadSdk();
-    // Re-parse shortly after in case SDK was already present
-    setTimeout(parseXfbml, 1200);
+const iframeSrc = computed(() => {
+    if (!props.url) return '';
+    const lang = locale.value === 'ar' ? 'ar_AR' : 'en_US';
+    const encoded = encodeURIComponent(props.url);
+    return `https://www.facebook.com/plugins/page.php?href=${encoded}&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&locale=${lang}`;
 });
 </script>
 
@@ -54,21 +21,17 @@ onMounted(() => {
                 {{ t('آخر منشوراتنا على فيسبوك', 'Latest on Facebook') }}
             </h2>
             <div class="fb-frame">
-                <div
-                    class="fb-page"
-                    :data-href="url"
-                    data-tabs="timeline"
-                    data-width="500"
-                    data-height="620"
-                    data-small-header="false"
-                    data-adapt-container-width="true"
-                    data-hide-cover="false"
-                    data-show-facepile="true"
-                >
-                    <blockquote :cite="url" class="fb-xfbml-parse-ignore">
-                        <a :href="url" target="_blank" rel="noopener">{{ t('صفحتنا على فيسبوك', 'Our Facebook page') }}</a>
-                    </blockquote>
-                </div>
+                <iframe
+                    :src="iframeSrc"
+                    width="500"
+                    height="600"
+                    style="border:none; overflow:hidden;"
+                    scrolling="no"
+                    frameborder="0"
+                    allowfullscreen="true"
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    loading="lazy"
+                ></iframe>
             </div>
             <a :href="url" target="_blank" rel="noopener" class="fb-visit">
                 {{ t('زيارة صفحتنا على فيسبوك', 'Visit our Facebook page') }} ←
@@ -81,13 +44,31 @@ onMounted(() => {
 .fb-section { padding: 40px 0; }
 .fb-icon { width: 26px; height: 26px; color: #1877f2; }
 .fb-frame {
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    overflow: hidden; width: 500px; max-width: 100%; margin: 0 auto;
-    box-shadow: 0 1px 4px rgba(0,0,0,.06); min-height: 200px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 500px;
+    max-width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
-.fb-frame :deep(.fb-page),
-.fb-frame :deep(.fb-page span),
-.fb-frame :deep(.fb-page iframe) { width: 100% !important; }
-.fb-visit { display: block; text-align: center; margin-top: 16px; color: #1877f2; font-weight: 600; text-decoration: none; }
+.fb-frame iframe {
+    width: 100%;
+    display: block;
+}
+.fb-visit {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    color: #1877f2;
+    font-weight: 600;
+    text-decoration: none;
+}
 .fb-visit:hover { text-decoration: underline; }
+
+@media (max-width: 540px) {
+    .fb-frame { width: 100%; }
+    .fb-frame iframe { height: 500px; }
+}
 </style>
