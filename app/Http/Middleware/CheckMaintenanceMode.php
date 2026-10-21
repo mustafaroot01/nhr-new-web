@@ -15,7 +15,7 @@ class CheckMaintenanceMode
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->is('admin', 'admin/*', 'livewire/*')) {
+        if ($request->is('x9k2m7p4', 'x9k2m7p4/*', 'livewire/*')) {
             return $next($request);
         }
 

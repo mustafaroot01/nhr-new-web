@@ -160,7 +160,8 @@ class PostResource extends Resource
                                     ->imageResizeMode('cover')
                                     ->imageCropAspectRatio('16:9')
                                     ->imageResizeTargetWidth('1200')
-                                    ->imageResizeTargetHeight('630'),
+                                    ->imageResizeTargetHeight('630')
+                                    ->maxSize(5120),
                             ]),
                         Forms\Components\Section::make('معرض الصور')
                             ->description('اسحب الصور لإعادة الترتيب — اضغط على صورة للمعاينة أو الحذف')
@@ -178,6 +179,7 @@ class PostResource extends Resource
                                     ->openable()
                                     ->downloadable()
                                     ->uploadingMessage('جارِ رفع الصور...')
+                                    ->maxSize(10240)
                                     ->helperText('يمكنك رفع عدة صور دفعة واحدة'),
                             ]),
                         Forms\Components\Section::make('المرفقات')
@@ -198,7 +200,8 @@ class PostResource extends Resource
                                         'application/msword',
                                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                                     ])
-                                    ->helperText('الصيغ المدعومة: PDF، Word'),
+                                    ->maxSize(20480)
+                                    ->helperText('الصيغ المدعومة: PDF، Word — حد أقصى 20MB'),
                             ]),
                     ])
                     ->columnSpan(['lg' => 1]),

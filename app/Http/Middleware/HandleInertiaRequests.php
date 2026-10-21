@@ -44,7 +44,7 @@ class HandleInertiaRequests extends Middleware
         // Extract src from an <iframe> and only allow google.com/maps domains
         if (preg_match('/<iframe[^>]+src=["\']([^"\']+)["\']/', $html, $m)) {
             $src = $m[1];
-            if (preg_match('#^https://(www\.)?google\.com/maps/#', $src)) {
+            if (preg_match('#^https://(www\.)?google\.com/maps/embed#', $src)) {
                 return '<iframe src="' . e($src) . '" width="100%" height="350" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
             }
         }

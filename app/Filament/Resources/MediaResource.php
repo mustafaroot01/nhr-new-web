@@ -43,6 +43,10 @@ class MediaResource extends Resource
                     ->disk('public')
                     ->directory('media/uploads')
                     ->maxSize(10240)
+                    ->acceptedFileTypes([
+                        'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+                        'application/pdf', 'video/mp4',
+                    ])
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('alt_text')
                     ->label('النص البديل')

@@ -90,7 +90,7 @@ class BannerResource extends Resource
                     ]),
                 Forms\Components\Section::make('الإعدادات')
                     ->schema([
-                        Forms\Components\TextInput::make('link')->label('الرابط عند الضغط')->url()->helperText('اختياري'),
+                        Forms\Components\TextInput::make('link')->label('الرابط عند الضغط')->url()->rules(['nullable', 'regex:/^https?:\/\//'])->helperText('اختياري — يجب أن يبدأ بـ http:// أو https://'),
                         Forms\Components\TextInput::make('sort_order')->label('الترتيب')->numeric()->default(0),
                         Forms\Components\Toggle::make('is_active')->label('مفعّل')->default(true),
                     ])

@@ -1,6 +1,9 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 defineProps({ links: { type: Array, default: () => [] } });
+function decodeLabel(label) {
+    return label.replace(/&laquo;/g, '«').replace(/&raquo;/g, '»').replace(/&amp;/g, '&');
+}
 </script>
 
 <template>
@@ -10,9 +13,8 @@ defineProps({ links: { type: Array, default: () => [] } });
                 v-if="link.url"
                 :href="link.url"
                 :class="['page-link', { active: link.active }]"
-                v-html="link.label"
-            />
-            <span v-else class="page-link disabled" v-html="link.label" />
+            >{{ decodeLabel(link.label) }}</Link>
+            <span v-else class="page-link disabled">{{ decodeLabel(link.label) }}</span>
         </template>
     </nav>
 </template>
