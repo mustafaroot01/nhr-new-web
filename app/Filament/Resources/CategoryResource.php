@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
-use App\Models\CategoryTranslation;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -79,10 +78,15 @@ class CategoryResource extends Resource
                     ->helperText('اتركه فارغاً وسيُستخدم رقم التصنيف تلقائياً'),
                 Forms\Components\Select::make('parent_id')
                     ->label('التصنيف الأب')
-                    ->relationship('parent')
-                    ->getOptionLabelFromRecordUsing(fn (Category $record) => $record->translation('ar')?->name ?? $record->slug)
+                    ->options(fn () => Category::whereNull('parent_id')
+                        ->where('is_visible', true)
+                        ->with('translations')
+                        ->orderBy('sort_order')
+                        ->get()
+                        ->pluck('name', 'id'))
                     ->searchable()
-                    ->preload()
+                    ->placeholder('— قسم رئيسي —')
+                    ->helperText('اتركه فارغاً لإنشاء قسم رئيسي، أو اختر قسماً لإضافة فرعي تحته')
                     ->nullable(),
                 Forms\Components\TextInput::make('sort_order')
                     ->label('الترتيب')
@@ -106,15 +110,20 @@ class CategoryResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('translatedName')
                     ->label('الاسم')
-                    ->getStateUsing(fn (Category $record) => $record->translation('ar')?->name ?? '-')
+                    ->getStateUsing(function (Category $record) {
+                        $name = $record->translation('ar')?->name ?? '-';
+                        return $record->parent_id ? "↳ {$name}" : $name;
+                    })
                     ->description(fn (Category $record) => $record->translation('en')?->name)
                     ->searchable(query: fn ($query, string $search) => $query->whereHas('translations', fn ($q) => $q->where('name', 'like', "%{$search}%")))
                     ->weight('medium'),
                 Tables\Columns\TextColumn::make('parentName')
-                    ->label('التصنيف الأب')
+                    ->label('النوع')
                     ->badge()
-                    ->color('info')
-                    ->getStateUsing(fn (Category $record) => $record->parent?->translation('ar')?->name ?? '— رئيسي'),
+                    ->getStateUsing(fn (Category $record) => $record->parent_id
+                        ? $record->parent?->translation('ar')?->name
+                        : 'رئيسي')
+                    ->color(fn (Category $record) => $record->parent_id ? 'info' : 'success'),
                 Tables\Columns\TextColumn::make('slug')
                     ->label('الرابط')
                     ->color('gray')
@@ -135,6 +144,17 @@ class CategoryResource extends Resource
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
             ->filters([
+                Tables\Filters\SelectFilter::make('type')
+                    ->label('النوع')
+                    ->options([
+                        'parent' => 'أقسام رئيسية',
+                        'child' => 'أقسام فرعية',
+                    ])
+                    ->query(fn ($query, array $data) => match ($data['value'] ?? null) {
+                        'parent' => $query->whereNull('parent_id'),
+                        'child' => $query->whereNotNull('parent_id'),
+                        default => $query,
+                    }),
                 Tables\Filters\TernaryFilter::make('is_visible')->label('الظهور'),
                 Tables\Filters\TrashedFilter::make()->label('المحذوفات'),
             ])
