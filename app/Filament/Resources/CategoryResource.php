@@ -24,11 +24,11 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
-    protected static ?string $navigationLabel = 'التصنيفات';
+    protected static ?string $navigationLabel = 'الأقسام الرئيسية';
 
-    protected static ?string $modelLabel = 'تصنيف';
+    protected static ?string $modelLabel = 'قسم رئيسي';
 
-    protected static ?string $pluralModelLabel = 'التصنيفات';
+    protected static ?string $pluralModelLabel = 'الأقسام الرئيسية';
 
     protected static ?string $navigationGroup = 'المحتوى';
 
@@ -76,18 +76,6 @@ class CategoryResource extends Resource
                     ->unique(ignoreRecord: true)
                     ->maxLength(255)
                     ->helperText('اتركه فارغاً وسيُستخدم رقم التصنيف تلقائياً'),
-                Forms\Components\Select::make('parent_id')
-                    ->label('التصنيف الأب')
-                    ->options(fn () => Category::whereNull('parent_id')
-                        ->where('is_visible', true)
-                        ->with('translations')
-                        ->orderBy('sort_order')
-                        ->get()
-                        ->pluck('name', 'id'))
-                    ->searchable()
-                    ->placeholder('— قسم رئيسي —')
-                    ->helperText('اتركه فارغاً لإنشاء قسم رئيسي، أو اختر قسماً لإضافة فرعي تحته')
-                    ->nullable(),
                 Forms\Components\TextInput::make('sort_order')
                     ->label('الترتيب')
                     ->numeric()
@@ -102,32 +90,24 @@ class CategoryResource extends Resource
     {
         return $table
             ->striped()
-            ->persistSortInSession()
-            ->persistSearchInSession()
-            ->emptyStateHeading('لا توجد تصنيفات')
-            ->emptyStateDescription('ابدأ بإضافة أول تصنيف')
+            ->emptyStateHeading('لا توجد أقسام رئيسية')
+            ->emptyStateDescription('ابدأ بإضافة أول قسم رئيسي')
             ->emptyStateIcon('heroicon-o-folder')
             ->columns([
                 Tables\Columns\TextColumn::make('translatedName')
-                    ->label('الاسم')
-                    ->getStateUsing(function (Category $record) {
-                        $name = $record->translation('ar')?->name ?? '-';
-                        return $record->parent_id ? "↳ {$name}" : $name;
-                    })
-                    ->description(fn (Category $record) => $record->translation('en')?->name)
+                    ->label('الاسم بالعربي')
+                    ->getStateUsing(fn (Category $record) => $record->translation('ar')?->name ?? '-')
                     ->searchable(query: fn ($query, string $search) => $query->whereHas('translations', fn ($q) => $q->where('name', 'like', "%{$search}%")))
                     ->weight('medium'),
-                Tables\Columns\TextColumn::make('parentName')
-                    ->label('النوع')
+                Tables\Columns\TextColumn::make('translatedNameEn')
+                    ->label('Name')
+                    ->getStateUsing(fn (Category $record) => $record->translation('en')?->name ?? '-')
+                    ->color('gray'),
+                Tables\Columns\TextColumn::make('children_count')
+                    ->label('الأقسام الفرعية')
+                    ->counts('children')
                     ->badge()
-                    ->getStateUsing(fn (Category $record) => $record->parent_id
-                        ? $record->parent?->translation('ar')?->name
-                        : 'رئيسي')
-                    ->color(fn (Category $record) => $record->parent_id ? 'info' : 'success'),
-                Tables\Columns\TextColumn::make('slug')
-                    ->label('الرابط')
-                    ->color('gray')
-                    ->toggleable(),
+                    ->color('info'),
                 Tables\Columns\TextColumn::make('posts_count')
                     ->label('المقالات')
                     ->counts('posts')
@@ -138,59 +118,31 @@ class CategoryResource extends Resource
                     ->boolean(),
                 Tables\Columns\TextColumn::make('sort_order')
                     ->label('الترتيب')
-                    ->sortable()
-                    ->toggleable(),
+                    ->sortable(),
             ])
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
             ->filters([
-                Tables\Filters\SelectFilter::make('type')
-                    ->label('النوع')
-                    ->options([
-                        'parent' => 'أقسام رئيسية',
-                        'child' => 'أقسام فرعية',
-                    ])
-                    ->query(fn ($query, array $data) => match ($data['value'] ?? null) {
-                        'parent' => $query->whereNull('parent_id'),
-                        'child' => $query->whereNotNull('parent_id'),
-                        default => $query,
-                    }),
                 Tables\Filters\TernaryFilter::make('is_visible')->label('الظهور'),
-                Tables\Filters\TrashedFilter::make()->label('المحذوفات'),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\RestoreAction::make()->label('استرجاع'),
-                    Tables\Actions\DeleteAction::make()
-                        ->requiresConfirmation()
-                        ->modalHeading('تأكيد حذف التصنيف')
-                        ->modalDescription(fn (Category $record) => $record->posts()->count() > 0
-                            ? 'تحذير: هذا التصنيف فيه ' . $record->posts()->count() . ' مقال. سيُنقل لسلة المحذوفات.'
-                            : 'سيُنقل التصنيف لسلة المحذوفات ويمكن استرجاعه.'),
-                    Tables\Actions\ForceDeleteAction::make()
-                        ->label('حذف نهائي')
-                        ->requiresConfirmation()
-                        ->modalHeading('حذف نهائي')
-                        ->modalDescription('تحذير: لا يمكن استرجاع التصنيف بعد الحذف النهائي!'),
-                ])
-                    ->label('إجراءات')
-                    ->icon('heroicon-m-ellipsis-horizontal')
-                    ->button()
-                    ->color('gray'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->modalHeading('تأكيد حذف القسم')
+                    ->modalDescription(fn (Category $record) => $record->children()->count() > 0
+                        ? 'تحذير: هذا القسم فيه ' . $record->children()->count() . ' قسم فرعي و ' . $record->posts()->count() . ' مقال.'
+                        : 'سيُنقل القسم لسلة المحذوفات.'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()->requiresConfirmation(),
-                    Tables\Actions\RestoreBulkAction::make()->label('استرجاع المحدد'),
-                    Tables\Actions\ForceDeleteBulkAction::make()->label('حذف نهائي'),
-                ]),
+                Tables\Actions\DeleteBulkAction::make()->requiresConfirmation(),
             ]);
     }
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getEloquentQuery()
+            ->whereNull('parent_id')
             ->withoutGlobalScopes([\Illuminate\Database\Eloquent\SoftDeletingScope::class]);
     }
 

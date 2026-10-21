@@ -16,6 +16,7 @@ class CreateCategory extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['uuid'] = Str::uuid()->toString();
+        $data['parent_id'] = null;
 
         if (blank($data['slug'] ?? null)) {
             $data['slug'] = $data['uuid'];
