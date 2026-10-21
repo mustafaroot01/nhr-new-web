@@ -10,12 +10,11 @@ import ToastNotifications from '../Components/ToastNotifications.vue';
 import PageLoadingBar from '../Components/PageLoadingBar.vue';
 
 const page = usePage();
-const { init: initDarkMode } = useDarkMode();
+const { isDark, init: initDarkMode } = useDarkMode();
 onMounted(initDarkMode);
 const settings = computed(() => page.props.settings);
 const locale = computed(() => page.props.locale || 'ar');
 
-// Load a Google Font dynamically and return a promise that resolves when fonts are ready.
 function ensureFontLoaded(families) {
     const unique = [...new Set(families.filter(Boolean))];
     if (!unique.length) return Promise.resolve();
@@ -43,16 +42,29 @@ function ensureFontLoaded(families) {
     return document.fonts.ready;
 }
 
-// Apply brand colors + chosen fonts from shared props
+function lightenColor(hex, amount) {
+    hex = hex.replace('#', '');
+    const r = Math.min(255, parseInt(hex.slice(0, 2), 16) + amount);
+    const g = Math.min(255, parseInt(hex.slice(2, 4), 16) + amount);
+    const b = Math.min(255, parseInt(hex.slice(4, 6), 16) + amount);
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+
 watchEffect(async () => {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
 
     const c = settings.value?.colors;
     if (c) {
-        root.style.setProperty('--primary', c.primary);
-        root.style.setProperty('--secondary', c.secondary);
-        root.style.setProperty('--accent', c.accent);
+        if (isDark.value) {
+            root.style.setProperty('--primary', lightenColor(c.primary, 80));
+            root.style.setProperty('--secondary', '#e2e8f0');
+            root.style.setProperty('--accent', lightenColor(c.accent, 40));
+        } else {
+            root.style.setProperty('--primary', c.primary);
+            root.style.setProperty('--secondary', c.secondary);
+            root.style.setProperty('--accent', c.accent);
+        }
     }
 
     const fonts = settings.value?.fonts;
