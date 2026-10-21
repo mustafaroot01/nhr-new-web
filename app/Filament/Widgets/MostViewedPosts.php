@@ -13,7 +13,7 @@ class MostViewedPosts extends TableWidget
 
     protected static ?int $sort = 4;
 
-    protected int|string|array $columnSpan = 1;
+    protected int|string|array $columnSpan = ['lg' => 1, 'default' => 'full'];
 
     public function table(Table $table): Table
     {
