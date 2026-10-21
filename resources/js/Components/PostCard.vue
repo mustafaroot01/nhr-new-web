@@ -52,7 +52,7 @@ function formatViews(n) {
     display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s;
 }
 .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
-.card-image { position: relative; display: block; aspect-ratio: 16/10; overflow: hidden; background: #eef1f4; }
+.card-image { position: relative; display: block; aspect-ratio: 16/10; overflow: hidden; background: var(--border); }
 .card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
 .card:hover .card-image img { transform: scale(1.05); }
 .card-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; opacity: .3; }

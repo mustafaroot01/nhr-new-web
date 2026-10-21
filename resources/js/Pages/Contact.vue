@@ -81,7 +81,7 @@ function submit() {
 .field { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 label { font-weight: 600; font-size: 14px; color: var(--secondary); }
-input, textarea { padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 15px; outline: none; }
+input, textarea { padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 15px; outline: none; background: var(--card); color: var(--text); }
 input:focus, textarea:focus { border-color: var(--primary); }
 input.error, textarea.error { border-color: #dc2626; }
 .err { color: #dc2626; font-size: 13px; }

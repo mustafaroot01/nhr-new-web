@@ -133,15 +133,65 @@ html, body { overflow-x: hidden; max-width: 100%; }
 html.dark {
     --text: #e5e7eb;
     --muted: #9ca3af;
-    --bg: #111827;
-    --card: #1f2937;
-    --border: #374151;
-    --dark: #0f172a;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --dark: #0b1120;
+    --primary: #3b82f6;
+    --secondary: #e2e8f0;
+    --accent: #f59e0b;
 }
 html.dark body { background: var(--bg); color: var(--text); }
-html.dark .main-bar { background: #1f2937; }
-html.dark .cat-bar { background: var(--primary); }
-html.dark img { filter: brightness(.92); }
+html.dark a { color: #60a5fa; }
+html.dark img { filter: brightness(.9) contrast(1.05); }
+html.dark .section-title { color: #e2e8f0; }
+html.dark .btn { background: #3b82f6; }
+html.dark .btn:hover { background: #2563eb; }
+html.dark .btn-outline { border-color: #475569; color: #e2e8f0; }
+html.dark .alert.success { background: #14532d; color: #bbf7d0; }
+
+/* Dark mode: header */
+html.dark .main-bar { background: #1e293b; }
+html.dark .brand-name { color: #e2e8f0; }
+html.dark .search-box { background: #0f172a; border-color: #334155; }
+html.dark .search-box:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+html.dark .search-input { color: #e5e7eb; }
+html.dark .search-input::placeholder { color: #64748b; }
+html.dark .search-btn { background: #3b82f6; }
+html.dark .search-btn:hover { background: #2563eb; }
+html.dark .burger-bar { background: #e2e8f0; }
+html.dark .cat-bar { background: #1a3a5c; }
+html.dark .dropdown { background: #1e293b; box-shadow: 0 14px 34px rgba(0,0,0,.4); }
+html.dark .dropdown-link { color: #e5e7eb; }
+html.dark .dropdown-link:hover { background: #0f172a; color: #60a5fa; }
+html.dark .site-header { box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+html.dark .utility-bar { background: #0b1120; }
+
+/* Dark mode: mobile drawer */
+html.dark .mobile-overlay { background: rgba(0,0,0,.65); }
+html.dark .mobile-drawer { background: #1e293b; box-shadow: 4px 0 24px rgba(0,0,0,.4); }
+html.dark .drawer-header { background: #0f172a; border-color: #334155; }
+html.dark .drawer-name { color: #e2e8f0; }
+html.dark .drawer-close { color: #94a3b8; }
+html.dark .drawer-close:hover { background: rgba(255,255,255,.08); color: #e2e8f0; }
+html.dark .drawer-search { background: #0f172a; border-color: #334155; }
+html.dark .drawer-search:focus-within { border-color: #3b82f6; }
+html.dark .drawer-search input { color: #e5e7eb; }
+html.dark .drawer-search input::placeholder { color: #64748b; }
+html.dark .drawer-link { color: #e5e7eb; }
+html.dark .drawer-link svg { color: #94a3b8; }
+html.dark .drawer-link:hover { background: #0f172a; }
+html.dark .drawer-link.active { color: #60a5fa; background: rgba(59,130,246,.1); }
+html.dark .drawer-link.active svg { color: #60a5fa; }
+html.dark .drawer-link--muted { color: #94a3b8; }
+html.dark .drawer-children { background: #0f172a; }
+html.dark .drawer-child { color: #e5e7eb; }
+html.dark .drawer-child:hover { background: rgba(255,255,255,.04); color: #60a5fa; }
+html.dark .drawer-child.active { color: #60a5fa; }
+html.dark .drawer-footer { background: #0f172a; border-color: #334155; }
+html.dark .drawer-lang { color: #60a5fa; border-color: #3b82f6; }
+html.dark .drawer-lang:hover { background: #3b82f6; color: #fff; }
+html.dark .drawer-section-label { color: #64748b; }
 
 @media (max-width: 560px) {
     .container { padding: 0 14px; }
